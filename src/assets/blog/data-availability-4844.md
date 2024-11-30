@@ -21,7 +21,7 @@ The following is a reminder of how the two major classes of these mechanisms wor
 - **OP:** Optimistic mechanisms are based on fraud proofs. The idea is that if a rollup operator submits an invalid state transition to the L1 rollup contract, people are incentivized to prove this violation to the contract and get rewarded. Therefore, **if we assume that someone can monitor the rollup chain at any time (albeit with some delay), the integrity of the execution is guaranteed.**
 As long as there is no invalid state transition, L1 never has to execute any of the rollup transactions; that’s where the users get their cost savings. In contrast, should a rollup operator attest to an invalid state transition, it is imperative for someone to construct and present a fraud-proof within a designated time frame; otherwise, the invalid state transition will irrevocably be finalized.
 Note that the rollup chain full-state has to be available (or recoverable) to the watchers, otherwise they can’t even recognize an invalid state transition.
-- **ZK:** Succinct proofs of validity are stronger, in the sense that they do not rely on an incentivized actor to watch the chain. The inner working of these proofs are more complicated and utilize [cryptographic](https://scroll.io/blog/proofGeneration) [magic](https://scroll.io/blog/kzg), but what they achieve is simple, mathematically proving that the new state of the rollup chain is the result of correct execution. That means even if the full-state of the rollup chain is never available, the **integrity of execution is always guaranteed**.
+- **ZK:** Succinct proofs of validity are stronger, in the sense that they do not rely on an incentivized actor to watch the chain. The inner working of these proofs is more complicated and utilize [cryptographic](https://scroll.io/blog/proofGeneration) [magic](https://scroll.io/blog/kzg), but what they achieve is simple, mathematically proving that the new state of the rollup chain is the result of correct execution. That means even if the full-state of the rollup chain is never available, the **integrity of execution is always guaranteed**.
 
 **This article will focus on rollups with succinct proofs.** 
 
@@ -87,7 +87,7 @@ To make things more clear, let's consider a concrete case in which we set the re
 While this idea is brilliant, it is complex to implement, and it involves quite a few other components. If it was not clear, a lot of details are hiding under the rug. For instance, we have to ensure that the encoded data is a valid Reed-Solomon code word, one approach to guarantee this is using a polynomial commitment scheme such as [KZG commitment](https://scroll.io/blog/kzg). Moreover, the underlying decentralized p2p network has to be robust enough to support data dissemination and sampling even in Byzantine setting, and designing such p2p networks is an active area of research. 
 This is the backbone of Danksharding, the up-and-coming data sharding solution that is going to be implemented after EIP4844 and expand the capacity of Ethereum as a data availability layer even further.
 
-## Proto-Danksharing: blob-carrying data
+## Proto-Danksharding: blob-carrying data
 
 One way to think about EIP4844 is as a clever combination of EIP4444 and EIP4488. It also implements many components that are required for the original Danksharding with data availability sampling proposal; so while it is easier to implement, it paves the way for what is coming next.
 
@@ -121,7 +121,7 @@ The field `blob_versioned_hashes` denotes a list of commitments to the blobs inc
 
 The EIP4844 introduces a new precompile that is designed to allow users to open the commitment to the blobs, and effectively access the blob data from smart contracts. This is very handy when verifying optimistic or succinct proofs that involve the blob data. 
 
-The `point_evaluation_precompile(versioned_hash, kzg_commitment, proof, z, y)` receives a versioned hash, the KZG commitment to the blob, and a KZG opening proof for point $z$ and value $y$ as input. It verifies that `kzg_commitment` corresponds to the `versioned_hash` provided and that the opening `proof` is valid. That is the for Lagrange interpolation polynomial of the blob `p(X)` we have `p(z) = y`.
+The `point_evaluation_precompile(versioned_hash, kzg_commitment, proof, z, y)` receives a versioned hash, the KZG commitment to the blob, and a KZG opening proof for point $z$ and value $y$ as input. It verifies that `kzg_commitment` corresponds to the `versioned_hash` provided and that the opening `proof` is valid. That is for Lagrange interpolation polynomial of the blob `p(X)` we have `p(z) = y`.
 
 This precompile nicely fits the needs of rollups with succinct proof of validity. There is no need to fully open the commitment to blob in EVM, it just suffices to check whether the data provided in the circuit as witness is consistent with the blob. More on this later. 
 
